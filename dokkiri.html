@@ -2,21 +2,24 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DOKKIRI-APP</title>
     <style>
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+            margin: 0; padding: 0; 
+            width: 100%; 
+            height: 100dvh; /* スマホのバーを考慮した高さ */
             background-color: black; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
+            position: relative;
         }
-
         /* オレンジ色のスタートボタン */
         #start-btn {
             padding: 20px 40px;
             font-size: 24px;
             font-weight: bold;
             color: white;
-            background-color: #FF8C00; /* オレンジ */
+            background-color: #FF8C00;
             border: none;
             border-radius: 12px;
             cursor: pointer;
@@ -26,9 +29,17 @@
         }
         #start-btn:active { transform: scale(0.9); }
 
+        /* 画像の共通設定 */
         .content {
-            position: absolute; width: 100%; height: 100%;
-            object-fit: contain;
+            position: absolute;
+            /* 画面のちょうど真ん中に配置する呪文 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            
+            width: 100%; 
+            height: 100%;
+            object-fit: contain; /* アスペクト比を維持 */
             display: none;
         }
 
@@ -52,7 +63,8 @@
             z-index: 200; 
             opacity: 0; 
             transition: opacity 2s ease-in-out; 
-            transform: scale(2); /* 縦横2倍 */
+            /* 真ん中寄せ(-50%)を維持しつつ、2倍に拡大する */
+            transform: translate(-50%, -50%) scale(2); 
         }
         .fade-in { opacity: 1 !important; }
     </style>
@@ -80,30 +92,21 @@
         const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         async function startDokkiri() {
-            // ボタンを消し、画像1を表示可能にする
             startBtn.style.display = 'none';
             img1.style.display = 'block';
             img2.style.display = 'block';
 
- // 【修正】爆速瞬き×4回（合計約0.48秒）
             for (let i = 1; i <= 4; i++) {
-                await wait(50);             // 目が開いている時間（50ms）
+                await wait(50); 
                 body.classList.add('closed'); 
-                await wait(70);             // 目を閉じている時間（70ms）
-                
-                // 4回目（最後）以外は、再び目を開ける
+                await wait(70); 
                 if (i < 4) {
                     body.classList.remove('closed');
                 }
             }
 
-            // 4回目で閉じている間に1枚目を裏で消す
             img1.style.display = 'none';
-            
-            // 音声を再生（クリックイベント内なので確実に鳴る）
             sound.play().catch(e => console.error("Audio error:", e));
-
-            // 2枚目（2倍サイズ）をフェードイン
             img2.classList.add('fade-in');
         }
 
