@@ -85,21 +85,22 @@
             img1.style.display = 'block';
             img2.style.display = 'block';
 
-            // 0.5秒以内の爆速瞬き×3回
-            for (let i = 1; i <= 3; i++) {
-                await wait(60); 
+ // 【修正】爆速瞬き×4回（合計約0.48秒）
+            for (let i = 1; i <= 4; i++) {
+                await wait(50);             // 目が開いている時間（50ms）
                 body.classList.add('closed'); 
-                await wait(100); 
+                await wait(70);             // 目を閉じている時間（70ms）
                 
-                if (i < 3) {
-                    body.classList.remove('closed'); 
+                // 4回目（最後）以外は、再び目を開ける
+                if (i < 4) {
+                    body.classList.remove('closed');
                 }
             }
 
-            // 3回目で閉じている間に1枚目を裏で消す
+            // 4回目で閉じている間に1枚目を裏で消す
             img1.style.display = 'none';
             
-            // 音声を再生（クリックイベント内なので確実に鳴ります）
+            // 音声を再生（クリックイベント内なので確実に鳴る）
             sound.play().catch(e => console.error("Audio error:", e));
 
             // 2枚目（2倍サイズ）をフェードイン
