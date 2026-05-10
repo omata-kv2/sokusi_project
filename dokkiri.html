@@ -12,6 +12,20 @@
             background-color: black; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
             position: relative;
+            display: flex; 
+            flex-direction: column; /* 【追加】要素を縦に並べる */
+            justify-content: center; 
+            align-items: center;
+            position: relative;
+        }
+        /* 【追加】見出しのデザイン */
+        .title-text {
+            color: white;
+            font-size: 32px;      /* 見出しの大きさ */
+            font-weight: bold;
+            margin-bottom: 30px; /* ボタンとの隙間 */
+            z-index: 10000;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
         /* オレンジ色のスタートボタン */
         #start-btn {
@@ -70,19 +84,15 @@
     </style>
 </head>
 <body>
-
+    <div id="title" class="title-text">フラッシュ暗算バトル</div>
     <button id="start-btn">タップでスタート</button>
-
     <img id="img1" class="content" src="image_cfa072.jpg">
     <img id="img2" class="content" src="image_cf4379.png">
-
     <audio id="soundEffect">
         <source src="sound-1221.mp3" type="audio/mpeg">
     </audio>
-
     <div id="eyelid-top" class="eyelid"></div>
     <div id="eyelid-bottom" class="eyelid"></div>
-
     <script>
         const body = document.body;
         const startBtn = document.getElementById('start-btn');
@@ -92,11 +102,13 @@
         const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         async function startDokkiri() {
+            // 見出しを消す（ここを追加）
+            document.getElementById('title').style.display = 'none';
             startBtn.style.display = 'none';
             img1.style.display = 'block';
             img2.style.display = 'block';
-
-            for (let i = 1; i <= 4; i++) {
+            
+           for (let i = 1; i <= 4; i++) {
                 await wait(50); 
                 body.classList.add('closed'); 
                 await wait(70); 
