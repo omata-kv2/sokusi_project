@@ -8,52 +8,60 @@
         body, html {
             margin: 0; padding: 0; 
             width: 100%; 
-            height: 100dvh; /* スマホのバーを考慮した高さ */
+            height: 100dvh; 
             background-color: black; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
-            position: relative;
             display: flex; 
-            flex-direction: column; /* 【追加】要素を縦に並べる */
-            justify-content: center; 
-            align-items: center;
+            flex-direction: column; /* 要素を縦に並べる */
+            justify-content: center; align-items: center;
             position: relative;
         }
-        /* 【追加】見出しのデザイン */
+
+        /* 見出しのデザイン */
         .title-text {
             color: white;
-            font-size: 32px;      /* 見出しの大きさ */
+            font-size: 32px;
             font-weight: bold;
-            margin-bottom: 30px; /* ボタンとの隙間 */
+            margin-bottom: 30px;
             z-index: 10000;
             text-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
-        /* オレンジ色のスタートボタン */
-        #start-btn {
+
+        /* 共通のボタンスタイル */
+        .action-btn {
             padding: 20px 40px;
             font-size: 24px;
             font-weight: bold;
             color: white;
-            background-color: #FF8C00;
             border: none;
             border-radius: 12px;
             cursor: pointer;
             z-index: 10000;
-            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.4);
             transition: transform 0.1s;
         }
-        #start-btn:active { transform: scale(0.9); }
+        .action-btn:active { transform: scale(0.9); }
+
+        /* オレンジ色のスタートボタン（既存） */
+        #start-btn {
+            background-color: #FF8C00;
+            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.4);
+            margin-bottom: 20px; /* 下のボタンとの隙間 */
+        }
+
+        /* 赤色の難関レベルボタン（新規） */
+        #hard-btn {
+            background-color: #E60000; /* 赤色 */
+            box-shadow: 0 4px 20px rgba(230, 0, 0, 0.4);
+        }
 
         /* 画像の共通設定 */
         .content {
             position: absolute;
-            /* 画面のちょうど真ん中に配置する呪文 */
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            
             width: 100%; 
             height: 100%;
-            object-fit: contain; /* アスペクト比を維持 */
+            object-fit: contain;
             display: none;
         }
 
@@ -72,43 +80,74 @@
         body.closed #eyelid-top { transform: translateY(0); }
         body.closed #eyelid-bottom { transform: translateY(0); }
 
-        /* 2枚目：最前面・2倍サイズ */
+        /* 2枚目：既存のドッキリ画像 */
         #img2 { 
             z-index: 200; 
             opacity: 0; 
             transition: opacity 2s ease-in-out; 
-            /* 真ん中寄せ(-50%)を維持しつつ、2倍に拡大する */
             transform: translate(-50%, -50%) scale(2); 
         }
+
+        /* 3枚目：鶏の画像（新規） */
+        #img3 {
+            z-index: 300; /* まぶた(100)の上に出すため高めに設定 */
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out; /* 1.5秒かけてフェードイン */
+            transform: translate(-50%, -50%); /* スケールは通常サイズ */
+        }
+
         .fade-in { opacity: 1 !important; }
     </style>
 </head>
 <body>
+
     <div id="title" class="title-text">フラッシュ暗算バトル</div>
-    <button id="start-btn">タップでスタート</button>
+
+    <button id="start-btn" class="action-btn">タップでスタート</button>
+    <button id="hard-btn" class="action-btn">難関レベルに挑戦</button>
+
     <img id="img1" class="content" src="image_cfa072.jpg">
     <img id="img2" class="content" src="image_cf4379.png">
-    <audio id="soundEffect">
+    <img id="img3" class="content" src="image_chicken.png"> <audio id="soundEffect">
         <source src="sound-1221.mp3" type="audio/mpeg">
     </audio>
+    <audio id="soundChicken">
+        <source src="sound-chicken.mp3" type="audio/mpeg"> </audio>
+
     <div id="eyelid-top" class="eyelid"></div>
     <div id="eyelid-bottom" class="eyelid"></div>
+
     <script>
         const body = document.body;
+        const title = document.getElementById('title');
         const startBtn = document.getElementById('start-btn');
+        const hardBtn = document.getElementById('hard-btn');
+        
         const img1 = document.getElementById('img1');
         const img2 = document.getElementById('img2');
+        const img3 = document.getElementById('img3'); // 追加
+        
         const sound = document.getElementById('soundEffect');
+        const soundChicken = document.getElementById('soundChicken'); // 追加
+        
         const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-        async function startDokkiri() {
-            // 見出しを消す（ここを追加）
-            document.getElementById('title').style.display = 'none';
+        // 共通の初期化（ボタンと見出しを消す）
+        function hideUI() {
+            title.style.display = 'none';
             startBtn.style.display = 'none';
+            hardBtn.style.display = 'none';
+        }
+
+        // ==========================================
+        // 【通常】オレンジボタンの挙動（既存・4回瞬き）
+        // ==========================================
+        async function startDokkiri() {
+            hideUI();
             img1.style.display = 'block';
             img2.style.display = 'block';
-            
-           for (let i = 1; i <= 4; i++) {
+
+            for (let i = 1; i <= 4; i++) {
                 await wait(50); 
                 body.classList.add('closed'); 
                 await wait(70); 
@@ -116,14 +155,43 @@
                     body.classList.remove('closed');
                 }
             }
+
             img1.style.display = 'none';
             sound.play().catch(e => console.error("Audio error:", e));
             img2.classList.add('fade-in');
         }
 
-        startBtn.onclick = () => {
-            startDokkiri();
-        };
+        // ==========================================
+        // 【難関レベル】赤ボタンの挙動（新規・3回瞬き）
+        // ==========================================
+        async function startHardDokkiri() {
+            hideUI();
+            img1.style.display = 'block';
+            img3.style.display = 'block'; // 鶏画像をブロック要素にする（まだ透明）
+
+            // 3回だけ瞬き
+            for (let i = 1; i <= 3; i++) {
+                await wait(50); 
+                body.classList.add('closed'); 
+                await wait(70); 
+                if (i < 3) {
+                    body.classList.remove('closed');
+                }
+            }
+
+            // 3回目でまぶたが閉じたまま、1枚目を消す
+            img1.style.display = 'none';
+            
+            // 音声を再生（鶏の絶叫）
+            soundChicken.play().catch(e => console.error("Audio error:", e));
+            
+            // 閉じたまぶた（黒画面）の上から、鶏を1.5秒かけてフェードイン
+            img3.classList.add('fade-in');
+        }
+
+        // ボタンのクリックイベントを登録
+        startBtn.onclick = () => startDokkiri();
+        hardBtn.onclick = () => startHardDokkiri();
     </script>
 </body>
 </html>
